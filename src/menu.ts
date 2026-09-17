@@ -32,7 +32,7 @@ export async function runMenu(): Promise<void> {
     console.log(cyanBold("        WEATHER CLI"));
     printDivider();
     console.log("  1. Clima de ciudad default");
-    console.log("  2. Clima de todas las ciudades");
+    console.log(`  2. Clima de todas las ciudades (${settings.cities.length})`);
     console.log("  3. Buscar y agregar ciudad");
     console.log("  4. Eliminar ciudad");
     console.log("  5. Establecer ciudad default");

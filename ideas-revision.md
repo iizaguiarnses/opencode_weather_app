@@ -1,6 +1,6 @@
 # Revisión Weather CLI
 
-- [ ] **Colores:** no hay ninguno; falta definir cyan (menú), amarillo (temp), verde/rojo (ok/error).
+- [x] **Colores:** no hay ninguno; falta definir cyan (menú), amarillo (temp), verde/rojo (ok/error).
     -Para los colores usar ANSI directos(sin dependencias nuevas).
     -EL menu debe ir en cian. Borde + titulos en cian. Titulo en cian negrita y borde cian; opciones en color default para mayor legibilidad.
     -Genera el archivo src/colors.ts para la implementacion.
