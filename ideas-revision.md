@@ -14,4 +14,5 @@
     -El alcance del pronostico debe ser para todas las ciudades. Lista default + ciudades guardadas, mostrando 7 dias para cada una (consistente con opcion 2)
     -Los campos para mostrar por cada dia del pronostico son Temps + condicion. Min/Max por dia + descripcion del cielo(Soleado,Lluvia,etc)
     -Esta implementacion sera la opcion 6 del menu el proyecto.
+- [x] **7 day forecast:** implementado como opción 6 del menú, reordenable con salir (8) y ajustes (7).
 - [ ] **Numeracion de ciudades:** Agrega a la opcion 2 del menu al final del texto "Clima de todas las ciudades" entre parentesis el numero de ciudades que hay registradas.

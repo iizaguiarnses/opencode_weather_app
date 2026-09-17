@@ -1,9 +1,9 @@
 import { stdin, stdout } from "node:process";
 import readline from "node:readline";
-import type { Settings, WeatherData, GeocodingResult, Units } from "./types";
+import type { Settings, WeatherData, GeocodingResult, Units, DailyForecast } from "./types";
 import { loadSettings, saveSettings } from "./storage";
 import { geocodeCity } from "./geocoding";
-import { fetchWeather } from "./forecast";
+import { fetchWeather, fetchDailyForecast, getWeatherDescription } from "./forecast";
 import { cyan, cyanBold, yellow, green, red } from "./colors";
 
 const rl = readline.createInterface({ input: stdin, output: stdout });
@@ -36,8 +36,9 @@ export async function runMenu(): Promise<void> {
     console.log("  3. Buscar y agregar ciudad");
     console.log("  4. Eliminar ciudad");
     console.log("  5. Establecer ciudad default");
-    console.log(`  8. Ajustes (${unitsLabel})`);
-    console.log("  9. Salir");
+    console.log("  6. Pronostico de 7 dias");
+    console.log(`  7. Ajustes (${unitsLabel})`);
+    console.log("  8. Salir");
     printDivider();
 
     const option = (await prompt(cyan("  Selecciona una opción: "))).trim();
@@ -63,11 +64,15 @@ export async function runMenu(): Promise<void> {
         settings = await setDefaultCity(settings);
         break;
       }
-      case "8": {
+      case "6": {
+        await show7DayForecast(settings);
+        break;
+      }
+      case "7": {
         settings = await toggleUnits(settings);
         break;
       }
-      case "9": {
+      case "8": {
         rl.close();
         process.exit(0);
       }
@@ -213,4 +218,59 @@ async function toggleUnits(settings: Settings): Promise<Settings> {
   console.log(`\n  ${green(`Unidades cambiadas a ${label}.`)}\n`);
   await prompt("  Presiona Enter para continuar...");
   return newSettings;
+}
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  const day = dayNames[date.getDay()];
+  const dayNum = String(date.getDate()).padStart(2, "0");
+  const monthNames = [
+    "ene", "feb", "mar", "abr", "may", "jun",
+    "jul", "ago", "sep", "oct", "nov", "dic",
+  ];
+  const month = monthNames[date.getMonth()];
+  return `${day} ${dayNum} ${month}`;
+}
+
+function printDailyForecast(city: string, forecasts: DailyForecast[], units: Units): void {
+  const unitLabel = units === "celsius" ? "°C" : "°F";
+  console.log(`\n  ${cyanBold(city)}`);
+  console.log(cyan("  " + "─".repeat(35)));
+  for (const f of forecasts) {
+    const desc = getWeatherDescription(f.weatherCode);
+    console.log(
+      `  ${formatDate(f.date)} | ${yellow(`${f.tempMax}${unitLabel}`)} / ${f.tempMin}${unitLabel} | ${desc}`
+    );
+  }
+  console.log("");
+}
+
+async function show7DayForecast(settings: Settings): Promise<void> {
+  const citiesToFetch: string[] = [];
+  if (settings.defaultCity) {
+    citiesToFetch.push(settings.defaultCity);
+  }
+  citiesToFetch.push(...settings.cities);
+
+  if (citiesToFetch.length === 0) {
+    console.log("\n  No hay ciudades registradas.\n");
+    await prompt("  Presiona Enter para continuar...");
+    return;
+  }
+
+  for (const city of citiesToFetch) {
+    try {
+      const coords: GeocodingResult | null = await geocodeCity(city);
+      if (!coords) {
+        console.log(`\n  ${red(`No se encontro: ${city}`)}\n`);
+        continue;
+      }
+      const forecasts = await fetchDailyForecast(coords, settings.units);
+      printDailyForecast(city, forecasts, settings.units);
+    } catch (err) {
+      console.log(`\n  ${red(`Error en ${city}: ${(err as Error).message}`)}\n`);
+    }
+  }
+  await prompt("  Presiona Enter para continuar...");
 }

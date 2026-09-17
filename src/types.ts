@@ -23,3 +23,10 @@ export interface GeocodingResult {
   lat: number;
   lon: number;
 }
+
+export interface DailyForecast {
+  date: string;
+  tempMax: number;
+  tempMin: number;
+  weatherCode: number;
+}

@@ -50,8 +50,9 @@ GET https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&curren
 3. **Buscar y agregar ciudad** → `geocoding.ts` → agrega a lista
 4. **Eliminar ciudad** → remueve de `storage.cities`
 5. **Establecer ciudad default** → setea `storage.defaultCity`
-8. **Ajustes (°C/°F)** → toggle de unidades
-9. **Salir** → `process.exit(0)`
+6. **Pronóstico 7 días** → `forecast.ts` con `fetchDailyForecast()` sobre default + ciudades guardadas
+7. **Ajustes (°C/°F)** → toggle de unidades
+8. **Salir** → `process.exit(0)`
 
 ## Ejecución
 
