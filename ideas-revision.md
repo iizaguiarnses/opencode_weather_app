@@ -13,3 +13,5 @@
 - [ ] **7 day forecast:** agregar la posibilidad de obtener el pronostico del clima para los proximos 7 dias.
     -El alcance del pronostico debe ser para todas las ciudades. Lista default + ciudades guardadas, mostrando 7 dias para cada una (consistente con opcion 2)
     -Los campos para mostrar por cada dia del pronostico son Temps + condicion. Min/Max por dia + descripcion del cielo(Soleado,Lluvia,etc)
+    -Esta implementacion sera la opcion 6 del menu el proyecto.
+- [ ] **Numeracion de ciudades:** Agrega a la opcion 2 del menu al final del texto "Clima de todas las ciudades" entre parentesis el numero de ciudades que hay registradas.
