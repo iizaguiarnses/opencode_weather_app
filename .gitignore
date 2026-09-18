@@ -6,8 +6,8 @@ out
 dist
 *.tgz
 
-# Ignore
-weather.exe
+# build
+weather
 
 # code coverage
 coverage
