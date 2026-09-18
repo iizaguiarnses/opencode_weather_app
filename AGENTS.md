@@ -9,19 +9,25 @@ Este es un proyecto de **Bun.js** — usa `bun`, no `npm` o `node`. El lockfile 
 ```
 02-weather/
 ├── index.ts          # Entry point raíz — importa y ejecuta runMenu() desde src/menu.ts
-├── package.json      # Scripts de build, start, dev
+├── package.json      # Scripts de build, start, dev, test, test:watch, tsc
 ├── tsconfig.json     # Configuración TypeScript (strict, noEmit: true)
 ├── bun.lock          # Lockfile de Bun
 ├── plan.md           # Plan de implementación de referencia
 ├── ideas-revision.md # Lista de ideas pendientes para revisión
-└── src/
-    ├── index.ts      # Entry point secundario — delega a src/menu.ts (usado por `bun run dev`)
-    ├── types.ts      # Tipos compartidos (Settings, WeatherData, GeocodingResult, Units, City, DailyForecast)
-    ├── colors.ts     # Funciones de colores ANSI (cyan, cyanBold, yellow, green, red)
-    ├── storage.ts    # Persistencia en ~/.config/weather-cli/data.json
-    ├── geocoding.ts  # Fetch a Geocoding API de OpenMeteo
-    ├── forecast.ts   # Fetch a Weather API de OpenMeteo (actual + 7 day forecast) + getWeatherDescription()
-    └── menu.ts       # Menú interactativo con readline (8 opciones)
+├── src/
+│   ├── index.ts      # Entry point secundario — delega a src/menu.ts (usado por `bun run dev`)
+│   ├── types.ts      # Tipos compartidos (Settings, WeatherData, GeocodingResult, Units, City, DailyForecast)
+│   ├── colors.ts     # Funciones de colores ANSI (cyan, cyanBold, yellow, green, red)
+│   ├── storage.ts    # Persistencia en ~/.config/weather-cli/data.json (loadSettings, saveSettings, ensureConfigDir, getConfigDir, getDataFile)
+│   ├── geocoding.ts  # Fetch a Geocoding API de OpenMeteo (geocodeCity)
+│   ├── forecast.ts   # Fetch a Weather API de OpenMeteo (fetchWeather, fetchDailyForecast, getWeatherDescription) + WEATHER_CODE_MAP
+│   └── menu.ts       # Menú interactativo con readline (8 opciones)
+└── tests/
+    ├── colors.test.ts        # Tests de funciones ANSI
+    ├── storage.test.ts       # Tests de persistencia
+    ├── geocoding.test.ts     # Tests de geocodificación (mockeando fetch)
+    ├── forecast.test.ts      # Tests de weather API + getWeatherDescription
+    └── menu.test.ts          # Tests de helper functions (formatDate, etc.)
 ```
 
 ## Ejecución
@@ -37,6 +43,9 @@ bun index.ts
 - `bun run build` — compila un binario ejecutable: `bun build --compile index.ts --outfile weather`
 - `bun run start` — ejecuta la app en modo runtime: `bun run index.ts`
 - `bun run dev` — modo desarrollo con watch: `bun run src/index.ts --watch`
+- `bun run test` — ejecuta todos los tests: `bun test`
+- `bun run test:watch` — ejecuta los tests en modo watch: `bun test --watch`
+- `bun run tsc` — verifica tipos sin emitir archivos: `bunx tsc`
 
 ## Menú
 
@@ -55,11 +64,34 @@ El menú interactivo ofrece las siguientes 8 opciones:
 
 Verifica los tipos con:
 
-```bash
+```
 bunx tsc
 ```
 
 `tsconfig.json` usa `strict: true` y `noEmit: true`, así que solo verifica los tipos (no genera archivos).
+
+## Testing
+
+Los tests se ejecutan con el test runner nativo de Bun:
+
+```bash
+bun test              # run all tests once
+bun test --watch      # run in watch mode
+```
+
+Los tests viven en `/tests` con la misma estructura que `/src`:
+
+```
+tests/
+├── colors.test.ts        # Tests de funciones ANSI
+├── storage.test.ts       # Tests de persistencia (limpia ~/.config/weather-cli antes cada test)
+├── geocoding.test.ts     # Tests de geocodificación (mockeando fetch)
+├── forecast.test.ts      # Tests de weather API + getWeatherDescription (mockeando fetch)
+└── menu.test.ts          # Tests de helper functions (formatDate, etc.)
+```
+
+- **No debes construir la aplicación si el testing falla.**
+- Para tests de fetch se usa `jest.fn()` con casteo `as unknown as typeof fetch`.
 
 ## Persistencia
 
@@ -79,7 +111,7 @@ Formato del archivo:
 }
 ```
 
-Funciones de persistencia en `src/storage.ts`: `loadSettings()`, `saveSettings()`, `ensureConfigDir()`.
+Funciones de persistencia en `src/storage.ts`: `loadSettings()`, `saveSettings()`, `ensureConfigDir()`, `getConfigDir()`, `getDataFile()`.
 
 ## API Integration
 
@@ -110,4 +142,4 @@ Los colores ANSI se usan directamente (sin dependencias externas). El menú usa:
 - La aplicación está completa y funcional con un menú interactivo de 8 opciones.
 - El pronóstico de 7 días incluye un mapeo de códigos WMO a descripciones en español (ver `WEATHER_CODE_MAP` y `getWeatherDescription` en `src/forecast.ts`).
 - No hay CI, hooks pre-commit, ni codegen configurados.
-- No existen tests. Ver `ideas-revision.md` para pendientes (incluye propuesta de testing con Bun en la carpeta `/tests`).
+- Tests implementados en `/tests` con el test runner nativo de Bun.

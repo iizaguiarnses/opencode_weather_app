@@ -6,10 +6,10 @@
     -Genera el archivo src/colors.ts para la implementacion.
 - [ ] **AGENTS.md:** dice que `index.ts` es stub, pero la app ya funciona — hay que actualizarlo.
 - [ ] **Ciudades:** geocoding solo trae 1 resultado; nombres ambiguos pueden fallar.
-- [ ] **Tests:** implementar todo el testing automatico usando el mismo bun.js.
+- [x] **Tests:** implementar todo el testing automatico usando el mismo bun.js.
     -No debemos construir la aplicacion si el testing falla.
     -Crea todo el testing dentro de la carpeta /tests
-    -La carpeta de "test" debera tener la misma estructura que la carpeta "src"
+    -La carpeta de "tests" debera tener la misma estructura que la carpeta "src"
 - [ ] **Binario:** compila bien; revisar que `./weather` guarde datos en `~/.config/weather-cli/`.
 - [ ] **Escalabilidad:** ¿qué tan fácil será expandir con nuevas funcionalidades?
 - [ ] **Carga:** ¿hay estado de carga en las tareas asíncronas?
