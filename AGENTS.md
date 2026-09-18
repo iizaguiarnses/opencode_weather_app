@@ -8,20 +8,20 @@ Este es un proyecto de **Bun.js** — usa `bun`, no `npm` o `node`. El lockfile 
 
 ```
 02-weather/
-├── index.ts          # Entry point — importa y ejecuta runMenu() desde src/menu.ts
+├── index.ts          # Entry point raíz — importa y ejecuta runMenu() desde src/menu.ts
 ├── package.json      # Scripts de build, start, dev
-├── tsconfig.json     # Configuración TypeScript (noEmit: true)
+├── tsconfig.json     # Configuración TypeScript (strict, noEmit: true)
 ├── bun.lock          # Lockfile de Bun
 ├── plan.md           # Plan de implementación de referencia
 ├── ideas-revision.md # Lista de ideas pendientes para revisión
 └── src/
-    ├── index.ts      # Entry point — importa y ejecuta runMenu()
+    ├── index.ts      # Entry point secundario — delega a src/menu.ts (usado por `bun run dev`)
     ├── types.ts      # Tipos compartidos (Settings, WeatherData, GeocodingResult, Units, City, DailyForecast)
     ├── colors.ts     # Funciones de colores ANSI (cyan, cyanBold, yellow, green, red)
     ├── storage.ts    # Persistencia en ~/.config/weather-cli/data.json
     ├── geocoding.ts  # Fetch a Geocoding API de OpenMeteo
-    ├── forecast.ts   # Fetch a Weather API de OpenMeteo (actual + 7 day forecast)
-    └── menu.ts       # Menú interactivo con readline
+    ├── forecast.ts   # Fetch a Weather API de OpenMeteo (actual + 7 day forecast) + getWeatherDescription()
+    └── menu.ts       # Menú interactativo con readline (8 opciones)
 ```
 
 ## Ejecución
@@ -40,16 +40,16 @@ bun index.ts
 
 ## Menú
 
-El menú interactivo ofrece las siguientes opciones:
+El menú interactivo ofrece las siguientes 8 opciones:
 
-1. Clima de ciudad default
-2. Clima de todas las ciudades
-3. Buscar y agregar ciudad
-4. Eliminar ciudad
-5. Establecer ciudad default
-6. Pronóstico de 7 dias — muestra temp max/min + descripción del cielo para 7 días, aplicado a ciudad default + ciudades guardadas
-7. Ajustes (°C/°F) — toggle de unidades
-8. Salir
+1. **Clima de ciudad default** — consulta el clima actual para la ciudad marcada como default
+2. **Clima de todas las ciudades** — itera sobre todas las ciudades registradas (muestra el conteo entre paréntesis)
+3. **Buscar y agregar ciudad** — geocodifica y agrega una nueva ciudad a la lista
+4. **Eliminar ciudad** — muestra lista numerada y elimina una ciudad; si era el default, la límpia
+5. **Establecer ciudad default** — marca una ciudad registrada como default
+6. **Pronóstico de 7 dias** — muestra temp max/min + descripción del cielo para los próximos 7 días, aplicado a la ciudad default y a las ciudades guardadas
+7. **Ajustes (°C/°F)** — toggle entre unidades celsius/fahrenheit; se persiste en data.json
+8. **Salir** — cierra la aplicación con `process.exit(0)`
 
 ## Verificación de tipos
 
@@ -59,7 +59,7 @@ Verifica los tipos con:
 bunx tsc
 ```
 
-`tsconfig.json` ya tiene `"noEmit": true`, así que solo verifica los tipos.
+`tsconfig.json` usa `strict: true` y `noEmit: true`, así que solo verifica los tipos (no genera archivos).
 
 ## Persistencia
 
@@ -79,11 +79,35 @@ Formato del archivo:
 }
 ```
 
+Funciones de persistencia en `src/storage.ts`: `loadSettings()`, `saveSettings()`, `ensureConfigDir()`.
+
+## API Integration
+
+### Geocoding (`src/geocoding.ts`)
+
+```
+GET https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=es&format=json
+```
+
+Extrae `latitude` y `longitude` del primer resultado.
+
+### Forecast (`src/forecast.ts`)
+
+- **Actual:** `GET https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m&temperature_unit={unit}`
+- **7-day:** `GET https://api.open-meteo.com/v1/forecast?...&daily=temperature_2m_max,temperature_2m_min,weathercode&temperature_unit={unit}&forecast_days=7`
+
+## Colores
+
+Los colores ANSI se usan directamente (sin dependencias externas). El menú usa:
+- **Cian / cian bold:** bordes, títulos, prompts
+- **Amarillo:** temperaturas
+- **Verde:** estados OK / confirmaciones
+- **Rojo:** errores / mensajes de fallo
+
 ## Notas
 
 - El README (español) describe una aplicación CLI de clima con la API OpenMeteo.
-- La aplicación está funcional con un menú interactivo que incluye: clima de ciudad default, clima de todas las ciudades, búsqueda y agregado de ciudades, eliminación de ciudades, establecimiento de ciudad default, pronóstico de 7 días (temp max/min + descripción del cielo para 7 días), toggle de unidades (°C/°F) y salida.
-- La pronóstico de 7 días incluye un mapeo de códigos WMO a descripciones en español (ver función `getWeatherDescription` en `src/forecast.ts`).
-- Los colores ANSI se usan directamente (sin dependencias externas). El menú usa cian, temperaturas amarillas, estados de OK/error verde/rojo.
+- La aplicación está completa y funcional con un menú interactivo de 8 opciones.
+- El pronóstico de 7 días incluye un mapeo de códigos WMO a descripciones en español (ver `WEATHER_CODE_MAP` y `getWeatherDescription` en `src/forecast.ts`).
 - No hay CI, hooks pre-commit, ni codegen configurados.
-- No existen tests. Ver `ideas-revision.md` para pendientes.
+- No existen tests. Ver `ideas-revision.md` para pendientes (incluye propuesta de testing con Bun en la carpeta `/tests`).

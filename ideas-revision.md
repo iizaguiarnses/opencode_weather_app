@@ -6,13 +6,15 @@
     -Genera el archivo src/colors.ts para la implementacion.
 - [ ] **AGENTS.md:** dice que `index.ts` es stub, pero la app ya funciona — hay que actualizarlo.
 - [ ] **Ciudades:** geocoding solo trae 1 resultado; nombres ambiguos pueden fallar.
-- [ ] **Tests:** no existen; conviene al menos probar storage y las APIs con mocks.
+- [ ] **Tests:** implementar todo el testing automatico usando el mismo bun.js.
+    -No debemos construir la aplicacion si el testing falla.
+    -Crea todo el testing dentro de la carpeta /tests
+    -La carpeta de "test" debera tener la misma estructura que la carpeta "src"
 - [ ] **Binario:** compila bien; revisar que `./weather` guarde datos en `~/.config/weather-cli/`.
 - [ ] **Escalabilidad:** ¿qué tan fácil será expandir con nuevas funcionalidades?
 - [ ] **Carga:** ¿hay estado de carga en las tareas asíncronas?
-- [ ] **7 day forecast:** agregar la posibilidad de obtener el pronostico del clima para los proximos 7 dias.
+- [x] **7 day forecast:** agregar la posibilidad de obtener el pronostico del clima para los proximos 7 dias.
     -El alcance del pronostico debe ser para todas las ciudades. Lista default + ciudades guardadas, mostrando 7 dias para cada una (consistente con opcion 2)
     -Los campos para mostrar por cada dia del pronostico son Temps + condicion. Min/Max por dia + descripcion del cielo(Soleado,Lluvia,etc)
     -Esta implementacion sera la opcion 6 del menu el proyecto.
-- [x] **7 day forecast:** implementado como opción 6 del menú, reordenable con salir (8) y ajustes (7).
-- [ ] **Numeracion de ciudades:** Agrega a la opcion 2 del menu al final del texto "Clima de todas las ciudades" entre parentesis el numero de ciudades que hay registradas.
+- [x] **Numeracion de ciudades:** Agrega a la opcion 2 del menu al final del texto "Clima de todas las ciudades" entre parentesis el numero de ciudades que hay registradas.
